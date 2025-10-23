@@ -2,20 +2,20 @@ package functions;
 
 public class LinkedListTabulatedFunction implements TabulatedFunction {
 
-    private static class ListElement{
+    private static class FunctionNode{
         private FunctionPoint point;
-        private  ListElement prev, next;
-        private ListElement(FunctionPoint point){
+        private  FunctionNode prev, next;
+        private FunctionNode(FunctionPoint point){
             this.point = point;
         }
     }
 
-    private final ListElement head;
+    private final FunctionNode head;
     private int size;
 
     //Конструкто по умолчанию
     public LinkedListTabulatedFunction() {
-        head = new ListElement(null);
+        head = new FunctionNode(null);
         head.prev = head;
         head.next = head;
         size = 0;
@@ -32,7 +32,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         }
         double step = (rightX - leftX) / (pointsCount - 1);
         for(int i = 0; i < pointsCount; i++){
-            ListElement node = addNodeToTail();
+            FunctionNode node = addNodeToTail();
             node.point = new FunctionPoint(leftX, 0);
             leftX += step;
         }
@@ -48,7 +48,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         }
         double step = (rightX - leftX) / (values.length - 1);
         for (int i = 0; i < values.length; i++) {
-            ListElement node = addNodeToTail();
+            FunctionNode node = addNodeToTail();
             node.point = new FunctionPoint(leftX, values[i]);
             leftX += step;
         }
@@ -84,7 +84,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         if (index < 0 || index >= size) {
             throw new FunctionPointIndexOutOfBoundsException();
         }
-        ListElement node = getNodeByIndex(index);
+        FunctionNode node = getNodeByIndex(index);
 
         double x = point.getX();
         if ((index > 0 && x <= node.prev.point.getX()) || (index < size - 1 && x >= node.next.point.getX())) {
@@ -104,7 +104,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         if (index < 0 || index >= size) {
             throw new FunctionPointIndexOutOfBoundsException();
         }
-        ListElement node = getNodeByIndex(index);
+        FunctionNode node = getNodeByIndex(index);
         if ((index > 0 && x <= node.prev.point.getX()) || (index < size - 1 && x >= node.next.point.getX())) {
             throw new InappropriateFunctionPointException("X координата точки нарушает упорядоченность");
         }
@@ -135,7 +135,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         }
 
         // Проверка на существующую точку с таким X
-        ListElement current = head.next;
+        FunctionNode current = head.next;
         while (current != head) {
             if (Math.abs(current.point.getX() - x) < 1e-10) {
                 throw new InappropriateFunctionPointException("Точка с X=" + point.getX() + " уже существует");
@@ -144,7 +144,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         }
 
         if (x < getLeftDomainBorder()) {
-            ListElement node = addNodeByIndex(0); // добавляем в начало
+            FunctionNode node = addNodeByIndex(0); // добавляем в начало
             node.point = new FunctionPoint(point);
             return;
         }
@@ -155,7 +155,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         }
 
         // Иначе вставляем в нужное место
-        ListElement curr = head.next;
+        FunctionNode curr = head.next;
         int index = 0;
         while (curr != head && curr.point.getX() < x) {
             curr = curr.next;
@@ -165,7 +165,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         if (curr != head && Math.abs(curr.point.getX() - x) < 1e-10) {
             throw new InappropriateFunctionPointException("Точка с X=" + point.getX() + " уже существует");
         }
-        ListElement node = addNodeByIndex(index);
+        FunctionNode node = addNodeByIndex(index);
         node.point = new FunctionPoint(point);
     }
 
@@ -183,7 +183,7 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
         if (x < getLeftDomainBorder() || x > getRightDomainBorder()) {
             return Double.NaN;
         }
-        ListElement current = head.next;
+        FunctionNode current = head.next;
         while (current != head && current.next != head) {
             double x1 = current.point.getX();
             double y1 = current.point.getY();
@@ -199,11 +199,11 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
     }
 
     //возвращает ссылку на объект элемента списка по его индексу
-    private ListElement getNodeByIndex(int index) {
+    private FunctionNode getNodeByIndex(int index) {
         if (index < 0 || index >= size) {
             throw new FunctionPointIndexOutOfBoundsException();
         }
-        ListElement current;
+        FunctionNode current;
 
         if (index < size / 2) {
             current = head.next;
@@ -220,9 +220,9 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
     }
 
     //Добавление точки в конец и возвращение ссылки на этот объект
-    private ListElement addNodeToTail() {
-        ListElement newNode = new ListElement(null);
-        ListElement last = head.prev;
+    private FunctionNode addNodeToTail() {
+        FunctionNode newNode = new FunctionNode(null);
+        FunctionNode last = head.prev;
 
         last.next = newNode;
         newNode.prev = last;
@@ -234,10 +234,10 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
     }
 
     //Добавление элемента в список по индексу и возвращение ссылки на объект этого элемента
-    private ListElement addNodeByIndex(int index) {
+    private FunctionNode addNodeByIndex(int index) {
         if (index == size) return addNodeToTail();
-        ListElement nextNode = getNodeByIndex(index);
-        ListElement newNode = new ListElement(null);
+        FunctionNode nextNode = getNodeByIndex(index);
+        FunctionNode newNode = new FunctionNode(null);
 
         newNode.next = nextNode;
         newNode.prev = nextNode.prev;
@@ -249,8 +249,8 @@ public class LinkedListTabulatedFunction implements TabulatedFunction {
     }
 
     //удаление элемента в списке по индексу
-    private ListElement deleteNodeByIndex(int index) {
-        ListElement node = getNodeByIndex(index);
+    private FunctionNode deleteNodeByIndex(int index) {
+        FunctionNode node = getNodeByIndex(index);
         node.prev.next = node.next;
         node.next.prev = node.prev;
         size--;
